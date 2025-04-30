@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35931.197 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FMSoftlab.ObjectMapper", "FMSoftlab.ObjectMapper\FMSoftlab.ObjectMapper.csproj", "{AA5932E4-35D4-27EA-1C81-3B748BD05935}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectMapperTests", "..\ObjectMapperTests\ObjectMapperTests.csproj", "{2DAAF7AF-7092-4D84-9EF3-DC31F5CB1329}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AA5932E4-35D4-27EA-1C81-3B748BD05935}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA5932E4-35D4-27EA-1C81-3B748BD05935}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA5932E4-35D4-27EA-1C81-3B748BD05935}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA5932E4-35D4-27EA-1C81-3B748BD05935}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DAAF7AF-7092-4D84-9EF3-DC31F5CB1329}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DAAF7AF-7092-4D84-9EF3-DC31F5CB1329}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DAAF7AF-7092-4D84-9EF3-DC31F5CB1329}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DAAF7AF-7092-4D84-9EF3-DC31F5CB1329}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FF5CEC67-DE2E-460E-A0CE-03A93AE31C93}
+	EndGlobalSection
+EndGlobal
