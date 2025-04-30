@@ -65,6 +65,5 @@
             Assert.Equal(p4.Name, p5.Name);
             Assert.Equal(p4.LastName.ToUpper(), p5.LastName);
         }
-
     }
 }
