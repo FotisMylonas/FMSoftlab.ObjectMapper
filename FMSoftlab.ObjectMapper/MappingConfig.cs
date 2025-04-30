@@ -24,7 +24,7 @@ namespace FMSoftlab.ObjectMapper
             return this;
         }
 
-        public MappingConfig<TSource, TTarget> Map<TTargetProp>(
+        public MappingConfig<TSource, TTarget> MapCustom<TTargetProp>(
             Expression<Func<TTarget, TTargetProp>> targetSelector,
             Func<TSource, TTargetProp> converter)
         {
