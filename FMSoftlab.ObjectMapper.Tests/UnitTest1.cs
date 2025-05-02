@@ -70,6 +70,25 @@
         public Telephone5 Telephone { get; set; } = new Telephone5();
     }
 
+    public class ItemSource { public string Name { get; set; } = ""; }
+    public class ItemTarget { public string Name { get; set; } = ""; }
+
+    public class OrderSource { public List<ItemSource> Items { get; set; } = new(); }
+    public class OrderTarget { public List<ItemTarget> Items { get; set; } = new(); }
+
+    public class PersonSource { public OrderSource Order { get; set; } = new(); }
+    public class PersonTarget { public OrderTarget Order { get; set; } = new(); }
+
+    public class ItemA { public string Name { get; set; } = ""; }
+    public class ItemB { public string Name { get; set; } = ""; }
+
+    public class OrderA { public List<ItemA> Items { get; set; } = new(); }
+    public class OrderB { public List<ItemB> Items { get; set; } = new(); }
+
+    public class PersonA { public List<OrderA> Orders { get; set; } = new(); }
+    public class PersonB { public List<OrderB> Orders { get; set; } = new(); }
+
+
     public class TestMappings
     {
 
@@ -149,5 +168,44 @@
             Assert.Equal(p7.Telephone.Number, p8.Telephone.TelephoneNumber);
         }
 
+        [Fact]
+        public void Test_Nested_Mapping()
+        {
+            ObjectMapper.Register<ItemSource, ItemTarget>();
+            ObjectMapper.Register<OrderSource, OrderTarget>();
+            ObjectMapper.Register<PersonSource, PersonTarget>();
+
+            // Map
+            var personSource = new PersonSource
+            {
+                Order = new OrderSource
+                {
+                    Items = new List<ItemSource> { new() { Name = "Test" } }
+                }
+            };
+
+            var personTarget = ObjectMapper.Map<PersonSource, PersonTarget>(personSource);
+            Assert.Equal("Test", personTarget.Order.Items[0].Name);
+        }
+
+        [Fact]
+        public void Test_Nested_Mapping_2()
+        {
+
+            ObjectMapper.Register<ItemA, ItemB>();
+            ObjectMapper.Register<OrderA, OrderB>();
+            ObjectMapper.Register<PersonA, PersonB>();
+
+            var personA = new PersonA
+            {
+                Orders = new List<OrderA>
+    {
+        new() { Items = new List<ItemA> { new() { Name = "Item 1" } } }
+    }
+            };
+
+            var personB = ObjectMapper.Map<PersonA, PersonB>(personA);
+            Assert.Equal("Item 1", personB.Orders[0].Items[0].Name);
+        }
     }
 }
