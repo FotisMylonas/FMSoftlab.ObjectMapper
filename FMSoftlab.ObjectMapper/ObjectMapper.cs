@@ -28,6 +28,13 @@ namespace FMSoftlab.ObjectMapper
         public static TTarget Map<TSource, TTarget>(TSource source)
             where TTarget : new()
         {
+            if (source is IEnumerable sourceEnumerable)
+            {
+                // If the source is a collection, map each item in the collection.
+                var targetEnumerable = MapCollection(sourceEnumerable, typeof(TSource), typeof(TTarget));
+                return (TTarget)targetEnumerable;
+            }
+
             if (!_configs.TryGetValue((typeof(TSource), typeof(TTarget)), out var configObj))
                 throw new InvalidOperationException($"Mapping not registered for {typeof(TSource)} -> {typeof(TTarget)}");
 
@@ -155,5 +162,7 @@ namespace FMSoftlab.ObjectMapper
             }
             return resultList;
         }
+
+
     }
 }

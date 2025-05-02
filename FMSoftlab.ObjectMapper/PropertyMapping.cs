@@ -17,9 +17,9 @@ namespace FMSoftlab.ObjectMapper
     {
         private readonly PropertyInfo? _source;
         private readonly PropertyInfo _target;
-        private readonly Func<TSource, TTargetProp> _converter;
+        private readonly Func<TSource, TTargetProp>? _converter;
 
-        public PropertyMapping(PropertyInfo? source, PropertyInfo target, Func<TSource, TTargetProp> converter)
+        public PropertyMapping(PropertyInfo? source, PropertyInfo target, Func<TSource, TTargetProp>? converter)
         {
             _source = source;
             _target = target;

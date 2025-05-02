@@ -11,13 +11,13 @@ namespace FMSoftlab.ObjectMapper
 
         public MappingConfig<TSource, TTarget> Map<TSourceProp, TTargetProp>(
             Expression<Func<TSource, TSourceProp>> sourceSelector,
-            Expression<Func<TTarget, TTargetProp>> targetSelector,
-            Func<TSource, TTargetProp> converter)
+            Expression<Func<TTarget, TTargetProp>> targetSelector
+            )
         {
             var sourceProp = GetPropertyInfo(sourceSelector);
             var targetProp = GetPropertyInfo(targetSelector);
 
-            CustomMappings.Add(new PropertyMapping<TSource, TTarget, TSourceProp, TTargetProp>(sourceProp, targetProp, converter));
+            CustomMappings.Add(new PropertyMapping<TSource, TTarget, TSourceProp, TTargetProp>(sourceProp, targetProp, null));
             return this;
         }
 
