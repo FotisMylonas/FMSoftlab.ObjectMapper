@@ -103,6 +103,23 @@
         }
 
         [Fact]
+        public void Test_DefaultMapping_CaseInsensitive_MapCollection()
+        {
+            ObjectMapper.Register<Person1, Person2>();
+            Person1[] p1 = {
+                new Person1 { NAME = "fotis1", LastName = "mylonas1" },
+                new Person1 { NAME = "fotis2", LastName = "mylonas2" },
+                new Person1 { NAME = "fotis3", LastName = "mylonas3" }
+            };
+            Person2[] p2 = ObjectMapper.MapCollection<Person1, Person2>(p1).ToArray();
+            for (int i = 0; i < p1.Length; i++)
+            {
+                Assert.Equal(p1[i].NAME, p2[i].Name);
+                Assert.Equal(p1[i].LastName, p2[i].LastName);
+            }
+        }
+
+        [Fact]
         public void Test_CustomMapping()
         {
             ObjectMapper.Register<Person2, Person3>(cfg =>

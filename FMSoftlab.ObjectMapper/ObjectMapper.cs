@@ -25,7 +25,7 @@ namespace FMSoftlab.ObjectMapper
 
         public static bool IsRegistered(Type source, Type target) => _configs.ContainsKey((source, target));
 
-        public static TTarget Map<TSource, TTarget>(TSource source)
+        /*public static TTarget Map<TSource, TTarget>(TSource source)
             where TTarget : new()
         {
             if (source is IEnumerable sourceEnumerable)
@@ -52,8 +52,40 @@ namespace FMSoftlab.ObjectMapper
                 map.Map(source, target);
 
             return target;
+        }*/
+
+        public static TTarget Map<TSource, TTarget>(TSource source)
+            where TTarget : new()
+        {
+            if (!_configs.TryGetValue((typeof(TSource), typeof(TTarget)), out var configObj))
+                throw new InvalidOperationException($"Mapping not registered for {typeof(TSource)} -> {typeof(TTarget)}");
+
+            var config = (MappingConfig<TSource, TTarget>)configObj;
+            var target = new TTarget();
+            var defaultMap = BuildDefaultMap<TSource, TTarget>();
+
+            foreach (var map in defaultMap.Values)
+                map.Map(source, target);
+
+            foreach (var map in config.CustomMappings)
+                defaultMap[map.TargetProperty.Name.ToLowerInvariant()] = map;
+
+            foreach (var map in defaultMap.Values.DistinctBy(m => m.TargetProperty.Name.ToLowerInvariant()))
+                map.Map(source, target);
+
+            return target;
         }
 
+
+        public static IEnumerable<TTarget> MapCollection<TSource, TTarget>(IEnumerable<TSource> sourceList) where TTarget : new()
+        {
+            if (sourceList?.Any()!=true)
+                yield break;
+            foreach (var item in sourceList)
+            {
+                yield return Map<TSource, TTarget>(item);
+            }
+        }
         public static void MapInto<TSource, TTarget>(TSource source, TTarget target) where TTarget : new()
         {
             if (!_configs.TryGetValue((typeof(TSource), typeof(TTarget)), out var configObj))
@@ -147,7 +179,7 @@ namespace FMSoftlab.ObjectMapper
                 .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))?
                 .GetGenericArguments()[0];
         }
-
+        
         private static object MapCollection(object? sourceCollection, Type sourceElem, Type targetElem)
         {
             if (sourceCollection is not IEnumerable enumerable) return Activator.CreateInstance(typeof(List<>).MakeGenericType(targetElem))!;
@@ -162,7 +194,5 @@ namespace FMSoftlab.ObjectMapper
             }
             return resultList;
         }
-
-
     }
 }
