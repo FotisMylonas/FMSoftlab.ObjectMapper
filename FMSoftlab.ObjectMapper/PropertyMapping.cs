@@ -13,13 +13,13 @@ namespace FMSoftlab.ObjectMapper
         PropertyInfo TargetProperty { get; }
     }
 
-    public class PropertyMapping<TSource, TTarget, TProp> : IPropertyMapping<TSource, TTarget>
+    public class PropertyMapping<TSource, TTarget, TSourceProp, TTargetProp> : IPropertyMapping<TSource, TTarget>
     {
-        private readonly PropertyInfo _source;
+        private readonly PropertyInfo? _source;
         private readonly PropertyInfo _target;
-        private readonly Func<TProp, TProp> _converter;
+        private readonly Func<TSource, TTargetProp> _converter;
 
-        public PropertyMapping(PropertyInfo source, PropertyInfo target, Func<TProp, TProp> converter)
+        public PropertyMapping(PropertyInfo? source, PropertyInfo target, Func<TSource, TTargetProp> converter)
         {
             _source = source;
             _target = target;
@@ -30,31 +30,22 @@ namespace FMSoftlab.ObjectMapper
 
         public void Map(TSource source, TTarget target)
         {
-            var value = (TProp)_source.GetValue(source);
-            var result = _converter != null ? _converter(value) : value;
-            _target.SetValue(target, result);
-        }
-    }
+            var value = _converter(source);
 
-    public class PropertyMapping<TSource, TTarget, TSourceProp, TTargetProp> : IPropertyMapping<TSource, TTarget>
-    {
-        private readonly PropertyInfo? _source;
-        private readonly PropertyInfo _target;
-        private readonly Func<TSource, TTargetProp> _converter;
-
-        public PropertyMapping(PropertyInfo? source, PropertyInfo target, Func<TSource, TTargetProp> converter)
-        {
-            _source = source; // may be null for computed mappings
-            _target = target;
-            _converter = converter ?? throw new ArgumentNullException(nameof(converter));
-        }
-
-        public PropertyInfo TargetProperty => _target;
-
-        public void Map(TSource source, TTarget target)
-        {
-            var convertedValue = _converter(source);
-            _target.SetValue(target, convertedValue);
+            if (_target.CanWrite)
+            {
+                _target.SetValue(target, value);
+            }
+            else if (value != null)
+            {
+                // For read-only properties, attempt to map into the existing instance
+                var targetValue = _target.GetValue(target);
+                if (targetValue != null && _source != null && ObjectMapper.IsRegistered(_source.PropertyType, _target.PropertyType))
+                {
+                    var mapMethod = typeof(ObjectMapper).GetMethod("MapInto")!.MakeGenericMethod(_source.PropertyType, _target.PropertyType);
+                    mapMethod.Invoke(null, new[] { _source.GetValue(source), targetValue });
+                }
+            }
         }
     }
 

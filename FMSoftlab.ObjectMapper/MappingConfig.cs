@@ -9,24 +9,22 @@ namespace FMSoftlab.ObjectMapper
     {
         internal List<IPropertyMapping<TSource, TTarget>> CustomMappings { get; } = new();
 
-        public MappingConfig<TSource, TTarget> Map<TProperty>(
-            Expression<Func<TSource, TProperty>> sourceSelector,
-            Expression<Func<TTarget, TProperty>> targetSelector)
+        public MappingConfig<TSource, TTarget> Map<TSourceProp, TTargetProp>(
+            Expression<Func<TSource, TSourceProp>> sourceSelector,
+            Expression<Func<TTarget, TTargetProp>> targetSelector,
+            Func<TSource, TTargetProp> converter)
         {
             var sourceProp = GetPropertyInfo(sourceSelector);
             var targetProp = GetPropertyInfo(targetSelector);
 
-            if (sourceProp.PropertyType != targetProp.PropertyType)
-                throw new InvalidOperationException($"Type mismatch: {sourceProp.Name} → {targetProp.Name}");
-
-            var mapping = new PropertyMapping<TSource, TTarget, TProperty>(sourceProp, targetProp, null);
-            CustomMappings.Add(mapping);
+            CustomMappings.Add(new PropertyMapping<TSource, TTarget, TSourceProp, TTargetProp>(sourceProp, targetProp, converter));
             return this;
         }
 
+
         public MappingConfig<TSource, TTarget> MapCustom<TTargetProp>(
             Expression<Func<TTarget, TTargetProp>> targetSelector,
-            Func<TSource, TTargetProp> converter)
+            Func<TSource, TTargetProp> converter) 
         {
             var targetProp = GetPropertyInfo(targetSelector);
 
