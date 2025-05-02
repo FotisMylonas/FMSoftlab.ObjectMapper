@@ -22,9 +22,9 @@ namespace FMSoftlab.ObjectMapper
         }
 
 
-        public MappingConfig<TSource, TTarget> MapCustom<TTargetProp>(
-            Expression<Func<TTarget, TTargetProp>> targetSelector,
-            Func<TSource, TTargetProp> converter) 
+        public MappingConfig<TSource, TTarget> MapCustom<TTargetProp>(            
+            Func<TSource, TTargetProp> converter,
+            Expression<Func<TTarget, TTargetProp>> targetSelector) 
         {
             var targetProp = GetPropertyInfo(targetSelector);
 

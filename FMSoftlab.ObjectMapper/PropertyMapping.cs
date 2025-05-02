@@ -30,8 +30,9 @@ namespace FMSoftlab.ObjectMapper
 
         public void Map(TSource source, TTarget target)
         {
-            var value = _converter(source);
-
+            TTargetProp? value = default(TTargetProp);
+            if (_converter!=null)
+                value = _converter(source);
             if (_target.CanWrite)
             {
                 _target.SetValue(target, value);
@@ -48,5 +49,4 @@ namespace FMSoftlab.ObjectMapper
             }
         }
     }
-
 }

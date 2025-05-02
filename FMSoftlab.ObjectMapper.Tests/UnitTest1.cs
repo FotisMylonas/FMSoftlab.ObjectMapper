@@ -102,13 +102,12 @@
             Assert.Equal(p1.LastName, p2.LastName);
         }
 
-
         [Fact]
         public void Test_CustomMapping()
         {
             ObjectMapper.Register<Person2, Person3>(cfg =>
             {
-                cfg.MapCustom(dest => dest.FullName, src => src.Name+" "+src.LastName);
+                cfg.MapCustom(src => src.Name+" "+src.LastName, dest => dest.FullName);
             });
             Person2 p2 = new Person2 { Name = "fotis", LastName = "mylonas" };
             Person3 p3 = ObjectMapper.Map<Person2, Person3>(p2);
@@ -120,7 +119,7 @@
         {
             ObjectMapper.Register<Person4, Person5>(cfg =>
             {
-                cfg.MapCustom(dest => dest.LASTNAME, src => src.LastName.ToUpper());
+                cfg.MapCustom(src => src.LastName.ToUpper(), dest => dest.LASTNAME);
             });
             Person4 p4 = new Person4 { Name = "fotis", LastName = "mylonas" };
             Person5 p5 = ObjectMapper.Map<Person4, Person5>(p4);
@@ -131,7 +130,7 @@
         [Fact]
         public void Test_ChildPropertyMapping_List_Or_IEnumerable()
         {
-            ObjectMapper.Register<Telephone4, Telephone5>(cfg => { cfg.MapCustom(dest => dest.TelephoneNumber, src => src.Number); });
+            ObjectMapper.Register<Telephone4, Telephone5>(cfg => { cfg.MapCustom(src => src.Number, dest => dest.TelephoneNumber); });
             ObjectMapper.Register<Address4, Address5>();
             ObjectMapper.Register<Person4, Person5>();
             Person4 p4 = new Person4
@@ -151,7 +150,7 @@
         [Fact]
         public void Test_Map_Properties_That_Are_Complex_Objects()
         {
-            ObjectMapper.Register<Telephone4, Telephone5>(cfg => { cfg.MapCustom(dest => dest.TelephoneNumber, src => src.Number); });
+            ObjectMapper.Register<Telephone4, Telephone5>(cfg => { cfg.MapCustom(src => src.Number, dest => dest.TelephoneNumber); });
             ObjectMapper.Register<Address4, Address5>();
             ObjectMapper.Register<Person7, Person8>();
             Person7 p7 = new Person7
