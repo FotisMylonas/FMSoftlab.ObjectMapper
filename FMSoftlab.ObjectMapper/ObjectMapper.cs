@@ -28,7 +28,7 @@ namespace FMSoftlab.ObjectMapper
 
             // Merge: custom overrides default on same Target.Name
             var merged = defaultMappings
-                .Where(d => customMappings.All(c => c.TargetProperty.Name != d.TargetProperty.Name))
+                .Where(d => customMappings.All(c => !string.Equals(c.TargetProperty.Name, d.TargetProperty.Name, StringComparison.InvariantCultureIgnoreCase)))
                 .Concat(customMappings)
                 .Cast<object>()
                 .ToList();
@@ -70,7 +70,7 @@ namespace FMSoftlab.ObjectMapper
 
             return (from s in sourceProps
                     from t in targetProps
-                    where s.Name == t.Name &&
+                    where string.Equals(s.Name, t.Name, StringComparison.InvariantCultureIgnoreCase) &&
                           s.PropertyType == t.PropertyType &&
                           t.CanWrite
                     select CreateDefaultMapping<TSource, TTarget>(s, t)).ToList();

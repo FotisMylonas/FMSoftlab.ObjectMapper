@@ -2,7 +2,7 @@
 {
     public class Person1
     {
-        public string Name { get; set; } = string.Empty;
+        public string NAME { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
     }
 
@@ -24,7 +24,7 @@
 
     public class Person5
     {
-        public string Name { get; set; } = string.Empty;
+        public string NAME { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
     }
 
@@ -35,9 +35,9 @@
         public void Test_DefaultMapping()
         {
             ObjectMapper.Register<Person1, Person2>();
-            Person1 p1 = new Person1 { Name = "fotis", LastName = "mylonas" };
+            Person1 p1 = new Person1 { NAME = "fotis", LastName = "mylonas" };
             Person2 p2 = ObjectMapper.Map<Person1, Person2>(p1);
-            Assert.Equal(p1.Name, p2.Name);
+            Assert.Equal(p1.NAME, p2.Name);
             Assert.Equal(p1.LastName, p2.LastName);
         }
 
@@ -62,7 +62,7 @@
             });
             Person4 p4 = new Person4 { Name = "fotis", LastName = "mylonas" };
             Person5 p5 = ObjectMapper.Map<Person4, Person5>(p4);
-            Assert.Equal(p4.Name, p5.Name);
+            Assert.Equal(p4.Name, p5.NAME);
             Assert.Equal(p4.LastName.ToUpper(), p5.LastName);
         }
     }
