@@ -90,7 +90,7 @@ jobs:
     - name: Push NuGet packages to NuGet.org
       run: |
         foreach ($package in Get-ChildItem -Path "./nupkgs" -Filter "*.nupkg") {
-          dotnet nuget push $package --source ${{ env.NUGET_SOURCE }} --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+          dotnet nuget push $package --source ${{ env.NUGET_SOURCE }} --api-key ${{ secrets.NUGET_AUTH_TOKEN }} --skip-duplicate
         }
       shell: pwsh # Use PowerShell for the foreach loop
       working-directory: ${{ github.workspace }}
