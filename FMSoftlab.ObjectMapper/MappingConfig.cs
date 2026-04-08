@@ -7,7 +7,7 @@ namespace FMSoftlab.ObjectMapper
 {
     public class MappingConfig<TSource, TTarget>
     {
-        internal List<IPropertyMapping<TSource, TTarget>> CustomMappings { get; } = new();
+        internal List<IPropertyMapping<TSource, TTarget>> CustomMappings { get; } = new List<IPropertyMapping<TSource, TTarget>>();
 
         public MappingConfig<TSource, TTarget> Map<TSourceProp, TTargetProp>(
             Expression<Func<TSource, TSourceProp>> sourceSelector,

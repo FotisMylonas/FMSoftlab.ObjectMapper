@@ -14,7 +14,7 @@ namespace FMSoftlab.ObjectMapper
     }
     public static class ObjectMapper
     {
-        private static readonly Dictionary<(Type, Type), object> _configs = new();
+        private static readonly Dictionary<(Type, Type), object> _configs = new Dictionary<(Type, Type), object>();
 
         public static void Register<TSource, TTarget>(Action<MappingConfig<TSource, TTarget>>? configAction = null)
         {
@@ -24,35 +24,6 @@ namespace FMSoftlab.ObjectMapper
         }
 
         public static bool IsRegistered(Type source, Type target) => _configs.ContainsKey((source, target));
-
-        /*public static TTarget Map<TSource, TTarget>(TSource source)
-            where TTarget : new()
-        {
-            if (source is IEnumerable sourceEnumerable)
-            {
-                // If the source is a collection, map each item in the collection.
-                var targetEnumerable = MapCollection(sourceEnumerable, typeof(TSource), typeof(TTarget));
-                return (TTarget)targetEnumerable;
-            }
-
-            if (!_configs.TryGetValue((typeof(TSource), typeof(TTarget)), out var configObj))
-                throw new InvalidOperationException($"Mapping not registered for {typeof(TSource)} -> {typeof(TTarget)}");
-
-            var config = (MappingConfig<TSource, TTarget>)configObj;
-            var target = new TTarget();
-            var defaultMap = BuildDefaultMap<TSource, TTarget>();
-
-            foreach (var map in defaultMap.Values)
-                map.Map(source, target);
-
-            foreach (var map in config.CustomMappings)
-                defaultMap[map.TargetProperty.Name.ToLowerInvariant()] = map;
-
-            foreach (var map in defaultMap.Values.DistinctBy(m => m.TargetProperty.Name.ToLowerInvariant()))
-                map.Map(source, target);
-
-            return target;
-        }*/
 
         public static TTarget Map<TSource, TTarget>(TSource source)
             where TTarget : new()

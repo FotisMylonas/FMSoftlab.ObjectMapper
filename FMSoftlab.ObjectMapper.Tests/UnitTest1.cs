@@ -154,14 +154,18 @@
             {
                 Name = "fotis",
                 LastName = "mylonas",
-                Addresses={ new Address4 { Address="my address" } },
-                Telephones = new List<Telephone4> { new Telephone4 { Number = "123456789" } }
+                Addresses={ new Address4 { Address="my address" }, new Address4 { Address="my address2" } },
+                Telephones = new List<Telephone4> { new Telephone4 { Number = "111" }, new Telephone4 { Number = "222" } }
             };
             Person5 p5 = ObjectMapper.Map<Person4, Person5>(p4);
             Assert.Equal(p4.Name, p5.NAME);
             Assert.Equal(p4.LastName, p5.LASTNAME);
-            Assert.Equal(p4.Addresses[0].Address, p5.Addresses[0].Address);
+            Assert.Equal(p4.Addresses.First().Address, p5.Addresses.First().Address);
+            Assert.Equal(p4.Addresses.Last().Address, p5.Addresses.Last().Address);
+            Assert.Equal(p4.Addresses.Count(), p5.Addresses.Count());
             Assert.Equal(p4.Telephones.First().Number, p5.Telephones.First().TelephoneNumber);
+            Assert.Equal(p4.Telephones.Last().Number, p5.Telephones.Last().TelephoneNumber);
+            Assert.Equal(p4.Telephones.Count(), p5.Telephones.Count());
         }
 
         [Fact]
@@ -201,7 +205,9 @@
             };
 
             var personTarget = ObjectMapper.Map<PersonSource, PersonTarget>(personSource);
-            Assert.Equal("Test", personTarget.Order.Items[0].Name);
+            Assert.Equal(personSource.Order.Items.First().Name, personTarget.Order.Items.First().Name);
+            Assert.Equal(personSource.Order.Items.Last().Name, personTarget.Order.Items.Last().Name);
+            Assert.Equal(personSource.Order.Items.Count(), personTarget.Order.Items.Count());
         }
 
         [Fact]

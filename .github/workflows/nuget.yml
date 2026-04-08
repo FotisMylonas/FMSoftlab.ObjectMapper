@@ -1,46 +1,96 @@
-name: "Deploy to Nuget"
+name: Build and Publish NuGet Packages
 
 on:
   push:
+    #branches: [ main ]
     tags:
-    - 'v*'
+      - 'v*.*.*' # Trigger only on tags like v1.0.0, v1.0.1, etc.
+  #pull_request:
+   # branches: [ main ]
 
 env:
-  PROJECT_PATH: 'FMSoftlab.ObjectMapper\FMSoftlab.ObjectMapper.csproj'
-  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}\output
-  NUGET_SOURCE_URL: 'https://api.nuget.org/v3/index.json'
+  SOLUTION_FILE: FMSoftlab.ObjectMapper.sln # Replace with the name of your solution file
+  NUGET_SOURCE: https://api.nuget.org/v3/index.json
 
 jobs:
-  deploy:
-    name: 'Deploy'
-    runs-on: 'windows-latest'
-    steps:
-    - name: 'Checkout'
-      uses: actions/checkout@v2
+  build:
+    name: Build
+    runs-on: windows-latest
 
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Required to get all tags for versioning
+
+    #- name: Get Version from Tag
+      #id: version
+      #if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+      #run: echo "version-without-v=${{ github.ref_name }}" >> $GITHUB_OUTPUT
     - name: 'Get version'
       id: version
-      uses: battila7/get-version-action@v2
-        
-    - name: Update Version in .csproj
-      run: |
-        sed -i "s|<Version>.*</Version>|<Version>${{ steps.version.outputs.version-without-v }}</Version>|" ${{ env.PROJECT_PATH }}
-        sed -i "s|<AssemblyVersion>.*</AssemblyVersion>|<AssemblyVersion>${{ steps.version.outputs.version-without-v }}.0</AssemblyVersion>|" ${{ env.PROJECT_PATH }}
-        sed -i "s|<FileVersion>.*</FileVersion>|<FileVersion>${{ steps.version.outputs.version-without-v }}.0</FileVersion>|" ${{ env.PROJECT_PATH }}
+      uses: battila7/get-version-action@v2      
 
-    - name: 'Install dotnet'
-      uses: actions/setup-dotnet@v1
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '9.0.x'
+        dotnet-version: '10.0.x' # Or your desired .NET SDK version
 
-    - name: 'Restore packages'
-      run: dotnet restore ${{ env.PROJECT_PATH }}
-    
-    - name: 'Build project'
-      run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.SOLUTION_FILE }}
 
-    - name: 'Pack project'
-      run: dotnet pack ${{ env.PROJECT_PATH  }} --no-restore --no-build --configuration Release --include-symbols -p:PackageVersion=${{ steps.version.outputs.version-without-v }} --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+    - name: Update Package Versions
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+      run: |
+        foreach ($projectFile in Get-ChildItem -Path "./**/*.csproj" -Recurse) {
+          Write-Host "Updating version in $($projectFile.FullName)"
+          (Get-Content $projectFile.FullName) |
+            ForEach-Object {
+              $_ -replace '<Version>.*?</Version>', "<Version>${{ steps.version.outputs.version-without-v }}</Version>" `
+                 -replace '<AssemblyVersion>.*?</AssemblyVersion>', "<AssemblyVersion>${{ steps.version.outputs.version-without-v }}.0</AssemblyVersion>" `
+                 -replace '<FileVersion>.*?</FileVersion>', "<FileVersion>${{ steps.version.outputs.version-without-v }}.0</FileVersion>"
+            } | Set-Content $projectFile.FullName
+        }
+      shell: pwsh
 
-    - name: 'Push Package'
-      run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}\FMSoftlab.ObjectMapper.${{ steps.version.outputs.version-without-v }}.nupkg -k ${{ secrets.NUGET_AUTH_TOKEN }} -s ${{ env.NUGET_SOURCE_URL }}
+    - name: Build solution
+      run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
+
+    - name: Pack NuGet packages
+      run: dotnet pack ${{ env.SOLUTION_FILE }} --configuration Release --no-build --output ./nupkgs
+      working-directory: ${{ github.workspace }} # Ensure we're at the root
+
+    - name: Upload NuGet packages
+      uses: actions/upload-artifact@v4
+      with:
+        name: nuget-packages
+        path: ./nupkgs     
+
+  publish:
+    name: Publish
+    needs: build
+    runs-on: windows-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') # Only publish on tagged commits
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '10.0.x' # Or your desired .NET SDK version
+
+    - name: Download NuGet packages
+      uses: actions/download-artifact@v4
+      with:
+        name: nuget-packages
+        path: ./nupkgs
+          
+    - name: Push NuGet packages to NuGet.org
+      run: |
+        foreach ($package in Get-ChildItem -Path "./nupkgs" -Filter "*.nupkg") {
+          dotnet nuget push $package --source ${{ env.NUGET_SOURCE }} --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+        }
+      shell: pwsh # Use PowerShell for the foreach loop
+      working-directory: ${{ github.workspace }}
