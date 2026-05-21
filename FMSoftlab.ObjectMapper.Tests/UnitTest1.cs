@@ -30,11 +30,13 @@
     public class Telephone4
     {
         public string Number { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
     }
 
     public class Telephone5
     {
         public string TelephoneNumber { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
     }
 
     public class Person4
@@ -155,7 +157,7 @@
                 Name = "fotis",
                 LastName = "mylonas",
                 Addresses={ new Address4 { Address="my address" }, new Address4 { Address="my address2" } },
-                Telephones = new List<Telephone4> { new Telephone4 { Number = "111" }, new Telephone4 { Number = "222" } }
+                Telephones = new List<Telephone4> { new Telephone4 { Number = "111", Type = "mobile" }, new Telephone4 { Number = "222", Type = "home" } }
             };
             Person5 p5 = ObjectMapper.Map<Person4, Person5>(p4);
             Assert.Equal(p4.Name, p5.NAME);
@@ -164,7 +166,9 @@
             Assert.Equal(p4.Addresses.Last().Address, p5.Addresses.Last().Address);
             Assert.Equal(p4.Addresses.Count(), p5.Addresses.Count());
             Assert.Equal(p4.Telephones.First().Number, p5.Telephones.First().TelephoneNumber);
+            Assert.Equal(p4.Telephones.First().Type, p5.Telephones.First().Type);
             Assert.Equal(p4.Telephones.Last().Number, p5.Telephones.Last().TelephoneNumber);
+            Assert.Equal(p4.Telephones.Last().Type, p5.Telephones.Last().Type);
             Assert.Equal(p4.Telephones.Count(), p5.Telephones.Count());
         }
 
@@ -181,11 +185,13 @@
             };
             p7.Address.Address = "my address";
             p7.Telephone.Number = "123456789";
+            p7.Telephone.Type = "mobile";
             Person8 p8 = ObjectMapper.Map<Person7, Person8>(p7);
             Assert.Equal(p7.Name, p8.Name);
             Assert.Equal(p7.LastName, p8.LastName);
             Assert.Equal(p7.Address.Address, p8.Address.Address);
             Assert.Equal(p7.Telephone.Number, p8.Telephone.TelephoneNumber);
+            Assert.Equal(p7.Telephone.Type, p8.Telephone.Type);
         }
 
         [Fact]

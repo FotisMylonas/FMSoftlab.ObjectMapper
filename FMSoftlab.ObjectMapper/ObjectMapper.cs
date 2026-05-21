@@ -41,7 +41,12 @@ namespace FMSoftlab.ObjectMapper
             foreach (var map in config.CustomMappings)
                 defaultMap[map.TargetProperty.Name.ToLowerInvariant()] = map;
 
-            foreach (var map in defaultMap.Values.DistinctBy(m => m.TargetProperty.Name.ToLowerInvariant()))
+            // Replaced DistinctBy with GroupBy -> First
+            var distinctMaps = defaultMap.Values
+                .GroupBy(m => m.TargetProperty.Name.ToLowerInvariant())
+                .Select(g => g.First());
+
+            foreach (var map in distinctMaps)
                 map.Map(source, target);
 
             return target;
@@ -68,7 +73,14 @@ namespace FMSoftlab.ObjectMapper
             foreach (var map in config.CustomMappings)
                 defaultMap[map.TargetProperty.Name.ToLowerInvariant()] = map;
 
-            foreach (var map in defaultMap.Values.DistinctBy(m => m.TargetProperty.Name.ToLowerInvariant()))
+            //foreach (var map in defaultMap.Values.DistinctBy(m => m.TargetProperty.Name.ToLowerInvariant()))
+            //  map.Map(source, target);
+            // Replaced DistinctBy with GroupBy -> First
+            var distinctMaps = defaultMap.Values
+                .GroupBy(m => m.TargetProperty.Name.ToLowerInvariant())
+                .Select(g => g.First());
+
+            foreach (var map in distinctMaps)
                 map.Map(source, target);
         }
 
